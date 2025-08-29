@@ -1,4 +1,4 @@
-for nro in list(range(0,10)):
+for nro in list(range(0,10)):   
     if nro == 5 :
         break
     print(nro)
@@ -14,3 +14,4 @@ except ValueError :
     print("No se puede convertir")
 finally :
     print("Fin")
+    
