@@ -1,0 +1,15 @@
+
+while(a) {
+    x = a;
+    y = 10;
+}
+
+while (x)
+    x = x - 1;
+
+double xyz;
+int x;
+
+x = 0;
+temp = xyz;
+a = 10;
