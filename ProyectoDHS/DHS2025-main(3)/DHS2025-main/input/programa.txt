@@ -1,9 +1,11 @@
 
-
-
-
 int prueba (int x, int y);
 double prueba2 ();
+
+for (int x = 0; x > 1; x++){
+    y = 1;
+}
+
 
 
 z = prueba(x , y);
