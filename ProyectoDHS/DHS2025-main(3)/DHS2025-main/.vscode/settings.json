@@ -10,5 +10,6 @@
     "antlr4.debug": {
     "visualParseTreeHorizontal": false,
     "visualParseTreeClustered": true
-    }
+    },
+    "python.REPL.enableREPLSmartSend": false
 }
