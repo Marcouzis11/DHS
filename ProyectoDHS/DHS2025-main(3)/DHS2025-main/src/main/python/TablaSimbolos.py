@@ -8,7 +8,7 @@ class TS:
     def __init__(self):
         if TS._instancia is not None:
             raise Exception("TS es singleton, usa getTablaSimbolo()")
-        self.contexto = []  # lista de Contextos
+        self.contexto = [Contexto()]  # lista de Contextos
 
     @classmethod
     def getTablaSimbolo(cls):
@@ -40,3 +40,20 @@ class TS:
         if not self.contexto:
             return None
         return self.contexto[-1].buscarSimbolo(nombre)
+
+    def mostrarTabla(self):
+        print("\n======= 🧠 TABLA DE SÍMBOLOS =======")
+
+        if not self.contexto:
+            print("⚠️  No hay contextos registrados.")
+            return
+
+        for i, ctx in enumerate(self.contexto):
+            print(f"\n--- Contexto {i} ---")
+            if ctx.simbolos:
+                for nombre, simbolo in ctx.simbolos.items():
+                    print(f"  {nombre:<15} -> {simbolo}")
+            else:
+                print("  (vacío)")
+
+        print("====================================\n")

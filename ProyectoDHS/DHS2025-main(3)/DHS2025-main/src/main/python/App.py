@@ -1,10 +1,10 @@
 import sys
 from antlr4 import *
-from compiladoresLexer  import compiladoresLexer
+from compiladorLexer  import compiladorLexer
 
 from Escucha import Escucha
 
-from compiladoresParser import compiladoresParser
+from compiladorParser import compiladorParser
 
 
 def main(argv):
@@ -12,9 +12,9 @@ def main(argv):
     if len(argv) > 1 :
         archivo = argv[1]
     input = FileStream(archivo)
-    lexer = compiladoresLexer(input)
+    lexer = compiladorLexer(input)
     stream = CommonTokenStream(lexer)
-    parser = compiladoresParser(stream)
+    parser = compiladorParser(stream)
     escucha = Escucha()
     parser.addParseListener(escucha)
     tree = parser.programa()

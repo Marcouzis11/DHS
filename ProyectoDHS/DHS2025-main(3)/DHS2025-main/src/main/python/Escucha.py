@@ -40,18 +40,16 @@ class Escucha (compiladorListener) :
         for parte in partes:
             if '=' in parte:
                 nombre, valor = [x.strip() for x in parte.split('=')]
-                inicializado = True
             else:
                 nombre = parte
-                inicializado = False
             # Verifica si ya existe en este contexto
             if self.ts.buscarSimboloContexto(nombre):
                 print(f"Error: variable '{nombre}' ya declarada en este contexto.")
             else:
                 var = Variables(nombre, tipo)
-                var.setInicializado(inicializado)
+                var.setInicializado()
                 self.ts.addSimbolo(var)
-                print(f"Declarada variable '{nombre}' tipo {tipo}, inicializada: {inicializado}")
+                print(f"Declarada variable '{nombre}' tipo {tipo}, inicializada: {var.inicializado}")
     
     #EXIT ASIGNACION
     def exitAsignacion(self, ctx:compiladorParser.AsignacionContext):
@@ -123,6 +121,7 @@ class Escucha (compiladorListener) :
     def exitBloque(self, ctx:compiladorParser.BloqueContext):
         self.indent -= 1
         print("  "*self.indent + "} Fin bloque")
+        self.ts.mostrarTabla()
         self.ts.delContexto()
     
     
