@@ -27,7 +27,6 @@ class Escucha (compiladorListener) :
     def enterDeclaracion(self, ctx:compiladorParser.DeclaracionContext):
         self.declaracion += 1
         print("Declaracion ENTER -> |" + ctx.getText() + "|")
-        print("  -- Cant. hijos = " + str(ctx.getChildCount()))
         
     def exitDeclaracion(self, ctx:compiladorParser.DeclaracionContext):
         tipo = ctx.tipo().getText()
@@ -132,5 +131,5 @@ class Escucha (compiladorListener) :
         self.numNodos += 1
     
     def __str__(self):
-        return "Se hicieron " + str(self.declaracion) + " declaraciones\n" + \
-                "Se visitaron " + str(self.numNodos) + " nodos"
+        return "Se hicieron " + str(self.declaracion) + " declaraciones\n" #+ \
+                #"Se visitaron " + str(self.numNodos) + " nodos"
