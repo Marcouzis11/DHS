@@ -2,8 +2,8 @@ int a, b=2;
 a = b;
 {
     int c = 10;
-    a = c;
-    b = (a + c);
+    a = c
+    b = a + c);
 }
 int a;    
 x = 5;        

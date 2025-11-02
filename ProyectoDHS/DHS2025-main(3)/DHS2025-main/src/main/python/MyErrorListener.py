@@ -11,13 +11,13 @@ class MyErrorListener(ErrorListener):
 
         #s Clasificación personalizada
         if "expecting ';'" in mensaje or "missing ';'" in mensaje:
-            tipo = "Falta de punto y coma"
+            tipo = "Falta de punto y coma: "
         elif "expecting '('" in mensaje or "missing '('" in mensaje:
-            tipo = "Falta de apertura de paréntesis"
+            tipo = "Falta de apertura de paréntesis: "
         elif "mismatched input" in mensaje and "expecting id" in mensaje:
-            tipo = "Formato incorrecto en lista de declaración de variables"
+            tipo = "Formato incorrecto en lista de declaración de variables: "
         elif "no viable alternative" in mensaje:
-            tipo = "Falta punto y coma o declaración mal formada"
+            tipo = "Falta punto y coma o declaración mal formada:"
             
 
         error = f"[Sintáctico] Línea {line}:{column} - {tipo} ({msg})"
