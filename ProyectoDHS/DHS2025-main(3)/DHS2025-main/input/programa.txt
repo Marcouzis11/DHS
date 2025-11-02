@@ -3,8 +3,9 @@ a = b;
 {
     int c = 10;
     a = c;
+    b = (a + c);
 }
-int a;          
+int a;    
 x = 5;        
 void f();
 int f() {
