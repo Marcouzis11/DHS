@@ -20,7 +20,7 @@ class Escucha (compiladorListener) :
         
     def exitPrograma(self, ctx:compiladorParser.ProgramaContext):
         print("Fin del parsing")
-        self.ts.mostrarTabla() 
+        self.ts.mostrarTablaCompleta() 
         
     #DECLARACIONES
         
@@ -120,7 +120,7 @@ class Escucha (compiladorListener) :
     def exitBloque(self, ctx:compiladorParser.BloqueContext):
         self.indent -= 1
         print("  "*self.indent + "} Fin bloque")
-        self.ts.mostrarTabla()
+        #self.ts.mostrarTabla()
         self.ts.delContexto()
     
     

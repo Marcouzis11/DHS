@@ -32,7 +32,8 @@ class TS:
 
     def delContexto(self):
         if self.contexto:
-            self.contexto.pop()
+            eliminado = self.contexto.pop()
+            self.historial.append(eliminado)
 
     def addSimbolo(self, id_obj):
         if not self.contexto:
@@ -69,33 +70,74 @@ class TS:
 
     #     print("====================================\n")
     
-    def mostrarTabla(self):
-        print("\n=== TABLA DE SÍMBOLOS ===")
+    # def mostrarTabla(self):
+    #     print("\n=== TABLA DE SÍMBOLOS ===")
         
-        if not self.contexto:
-            print("No hay contextos.")
+    #     if not self.contexto:
+    #         print("No hay contextos.")
+    #         return
+
+    #     for i, ctx in enumerate(self.contexto):
+    #         nombre_ctx = "GLOBAL" if i == 0 else f"LOCAL {i}"
+    #         print(f"\n-- Contexto {nombre_ctx} --")
+            
+    #         if not ctx.simbolos:
+    #             print("  (vacío)")
+    #             continue
+                
+    #         for nombre, simbolo in ctx.simbolos.items():
+    #             tipo = simbolo.getTipoDato()
+    #             inicializado = "Sí" if simbolo.inicializado else "No"
+    #             usado = "Sí" if simbolo.usado else "No"
+                
+    #             # Si es función, mostrar argumentos
+    #             args_str = ""
+    #             if simbolo.__class__.__name__ == "Funcion":
+    #                 args = simbolo.getListaArgs()
+    #                 if args:
+    #                     args_str = f", args=[{', '.join(arg.getNombre() for arg in args)}]"
+                
+    #             print(f"  {nombre}: {tipo} (init={inicializado}, usado={usado}{args_str})")
+        
+    #     print("\n=========================")
+    
+    def mostrarTablaCompleta(self):
+        print("\n=== TABLA DE SÍMBOLOS COMPLETA ===")
+
+        # Orden correcto: primero el global, luego los que se cerraron (historial)
+        todos_los_contextos = []
+        if self.contexto:
+            todos_los_contextos.extend(self.contexto)  # Contextos activos (incluye global)
+        if self.historial:
+            todos_los_contextos.extend(self.historial)  # Contextos cerrados
+
+        if not todos_los_contextos:
+            print("(No hay contextos registrados)")
             return
 
-        for i, ctx in enumerate(self.contexto):
-            nombre_ctx = "GLOBAL" if i == 0 else f"LOCAL {i}"
-            print(f"\n-- Contexto {nombre_ctx} --")
-            
-            if not ctx.simbolos:
+        for i, ctx in enumerate(todos_los_contextos):
+            if i == 0:
+                print("\n-- Contexto GLOBAL --")
+            else:
+                print(f"\n-- Contexto LOCAL {i} --")
+
+            if ctx.simbolos:
+                for nombre, simbolo in ctx.simbolos.items():
+                    # Intentamos obtener el tipo desde varias formas
+                    tipo = getattr(simbolo, "tipo", None)
+                    if tipo is None and hasattr(simbolo, "getTipo"):
+                        tipo = simbolo.getTipo()
+                    elif tipo is None and hasattr(simbolo, "getTipoDato"):
+                        tipo = simbolo.getTipoDato()
+                    if tipo is None:
+                        tipo = "—"
+
+                    inicializado = getattr(simbolo, "inicializado", False)
+                    usado = getattr(simbolo, "usado", False)
+                    ini = "Sí" if inicializado else "No"
+                    use = "Sí" if usado else "No"
+                    print(f"  {nombre}: {tipo} (init={ini}, usado={use})")
+            else:
                 print("  (vacío)")
-                continue
-                
-            for nombre, simbolo in ctx.simbolos.items():
-                tipo = simbolo.getTipoDato()
-                inicializado = "Sí" if simbolo.inicializado else "No"
-                usado = "Sí" if simbolo.usado else "No"
-                
-                # Si es función, mostrar argumentos
-                args_str = ""
-                if simbolo.__class__.__name__ == "Funcion":
-                    args = simbolo.getListaArgs()
-                    if args:
-                        args_str = f", args=[{', '.join(arg.getNombre() for arg in args)}]"
-                
-                print(f"  {nombre}: {tipo} (init={inicializado}, usado={usado}{args_str})")
-        
-        print("\n=========================")
+
+        print("\n=========================\n")

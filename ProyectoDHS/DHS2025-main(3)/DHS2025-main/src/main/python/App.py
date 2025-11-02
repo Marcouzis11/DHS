@@ -18,6 +18,8 @@ def main(argv):
     escucha = Escucha()
     parser.addParseListener(escucha)
     tree = parser.programa()
+    #visitante = Caminante()
+    #visitante.visitPrograma()
     print(escucha)
     #print(tree.toStringTree(recog=parser))
 
