@@ -26,11 +26,32 @@ class Escucha (compiladorListener) :
         
     def enterDeclaracion(self, ctx:compiladorParser.DeclaracionContext):
         self.declaracion += 1
-        print("Declaracion ENTER -> |" + ctx.getText() + "|")
+        #print("Declaracion ENTER -> |" + ctx.getText() + "|")
         
+    # def exitDeclaracion(self, ctx:compiladorParser.DeclaracionContext):
+    #     tipo = ctx.tipo().getText()
+    #     # listavar puede ser recursiva, aquí simplificamos suponiendo que es una lista separada por comas
+    #     texto = ctx.getText()
+    #     # Extraer variables y asignaciones
+    #     # Ejemplo: int a=1, b, c=2;
+    #     declaracion = texto.replace(tipo, '').replace(';', '').strip()
+    #     partes = [p.strip() for p in declaracion.split(',')]
+    #     for parte in partes:
+    #         if '=' in parte:
+    #             nombre, valor = [x.strip() for x in parte.split('=')]
+    #         else:
+    #             nombre = parte
+    #         # Verifica si ya existe en este contexto
+    #         if self.ts.buscarSimboloContexto(nombre):
+    #             print(f"Error: variable '{nombre}' ya declarada en este contexto.")
+    #         else:
+    #             var = Variables(nombre, tipo)
+    #             var.setInicializado()
+    #             self.ts.addSimbolo(var)
+    #             print(f"Declarada variable '{nombre}' tipo {tipo}, inicializada: {var.inicializado}")
+    
     def exitDeclaracion(self, ctx:compiladorParser.DeclaracionContext):
         tipo = ctx.tipo().getText()
-        # listavar puede ser recursiva, aquí simplificamos suponiendo que es una lista separada por comas
         texto = ctx.getText()
         # Extraer variables y asignaciones
         # Ejemplo: int a=1, b, c=2;
@@ -39,29 +60,56 @@ class Escucha (compiladorListener) :
         for parte in partes:
             if '=' in parte:
                 nombre, valor = [x.strip() for x in parte.split('=')]
+                var = Variables(nombre, tipo)
+                var.setInicializado()  # ✅ solo si tiene un valor asignado
             else:
                 nombre = parte
-            # Verifica si ya existe en este contexto
-            if self.ts.buscarSimboloContexto(nombre):
-                print(f"Error: variable '{nombre}' ya declarada en este contexto.")
-            else:
                 var = Variables(nombre, tipo)
-                var.setInicializado()
+                
+            if self.ts.buscarSimboloContexto(nombre):
+                print(f"[SEMÁNTICO] Error: variable '{nombre}' ya declarada en este contexto.")
+            else:
                 self.ts.addSimbolo(var)
                 print(f"Declarada variable '{nombre}' tipo {tipo}, inicializada: {var.inicializado}")
     
     #EXIT ASIGNACION
+    # def exitAsignacion(self, ctx:compiladorParser.AsignacionContext):
+    #     nombre = ctx.ID().getText()
+    #     simbolo = self.ts.buscarSimbolo(nombre)
+    #     if simbolo is None:
+    #         print(f"[SEMÁNTICO] Error: variable '{nombre}' no declarada.")
+    #     elif not isinstance(simbolo, Variables):
+    #         print(f"[SEMÁNTICO] Error: '{nombre}' no es una variable.")
+    #     else:
+    #         simbolo.setInicializado()
+    #         print(f"Variable '{nombre}' asignada.")
+    
     def exitAsignacion(self, ctx:compiladorParser.AsignacionContext):
+        # Lado izquierdo
         nombre = ctx.ID().getText()
         simbolo = self.ts.buscarSimbolo(nombre)
         if simbolo is None:
-            print(f"Error: variable '{nombre}' no declarada.")
+            print(f"[SEMÁNTICO] Error: variable '{nombre}' no declarada.")
         elif not isinstance(simbolo, Variables):
-            print(f"Error: '{nombre}' no es una variable.")
+            print(f"[SEMÁNTICO] Error: '{nombre}' no es una variable.")
         else:
             simbolo.setInicializado()
-            simbolo.setUsado()
-            print(f"Variable '{nombre}' asignada y ahora inicializada y usada.")
+            print(f"Variable '{nombre}' asignada.")
+
+        texto = ctx.getText()       # Ejemplo: "a=b"
+        lado_derecho = texto.split('=')[1].strip().rstrip(';')
+
+        # Buscamos si es un identificador existente
+        simbolo_valor = self.ts.buscarSimbolo(lado_derecho)
+        if simbolo_valor is None:
+            print(f"[SEMÁNTICO] Error: variable '{lado_derecho}' usada sin declarar.")
+        elif isinstance(simbolo_valor, Variables):
+            simbolo_valor.setUsado()
+            if not simbolo_valor.inicializado:
+                print(f"[SEMÁNTICO] Error: variable '{lado_derecho}' usada sin inicializar.")
+            else:
+                print(f"Variable '{lado_derecho}' usada correctamente en asignación.")
+
     
     #EXIT PROTOTIPADO FUNCION
     def exitPrototipoFunc(self, ctx:compiladorParser.PrototipoFuncContext):

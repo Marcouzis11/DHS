@@ -1,13 +1,15 @@
 int a, b=2;
+int c;
+a = c;
 a = b;
 {
     int c = 10;
-    a = c
-    b = a + c);
+    a = c;
+    b = (a + c);
 }
 int a;    
 x = 5;        
-void f();
+int f();
 int f() {
     int z;
     z = a;

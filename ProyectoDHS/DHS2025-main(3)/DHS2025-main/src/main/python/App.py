@@ -9,7 +9,7 @@ from compiladorParser import compiladorParser
 
 
 def main(argv):
-    archivo = "c:\\Users\\marti\\OneDrive\\Documentos\\GitHub\\DHS12\\ProyectoDHS\\DHS2025-main(3)\\DHS2025-main\\input\\programa.txt"  # Ruta relativa desde src/main/python hasta input/
+    archivo = "input/programa.txt"
     if len(argv) > 1 :
         archivo = argv[1]
     input = FileStream(archivo)
