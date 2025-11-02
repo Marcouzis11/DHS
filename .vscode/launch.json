@@ -9,9 +9,9 @@
             "type": "antlr-debug",
             "request": "launch",
             // Archivo con la gramatica
-            "grammar": "${file}",
+            "grammar": "c:\\Users\\marti\\OneDrive\\Documentos\\GitHub\\DHS12\\ProyectoDHS\\DHS2025-main(3)\\DHS2025-main\\src\\main\\python\\compilador.g4",
             // Archivo a parsear
-            "input": "input/programa.txt",
+            "input": "c:\\Users\\marti\\OneDrive\\Documentos\\GitHub\\DHS12\\ProyectoDHS\\DHS2025-main(3)\\DHS2025-main\\input\\programa.txt",
             // Simbolo inicial
             "startRule": "programa",
             // Muestra Arbol Sintactico
@@ -20,7 +20,7 @@
         },
         {
             "name": "Python: Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
