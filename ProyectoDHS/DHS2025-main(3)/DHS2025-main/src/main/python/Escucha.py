@@ -1,4 +1,5 @@
 from antlr4 import TerminalNode
+import re
 from antlr4 import ErrorNode
 from TablaSimbolos import TS
 from Funciones import Funcion
@@ -21,6 +22,12 @@ class Escucha (compiladorListener) :
     def exitPrograma(self, ctx:compiladorParser.ProgramaContext):
         print("Fin del parsing")
         self.ts.mostrarTablaCompleta() 
+        
+        print("\n[Chequeo Semántico Final]")
+        for simbolo in self.ts.obtenerTodosLosSimbolos():
+            if isinstance(simbolo, Variables):
+                if not simbolo.usado:
+                    print(f"[SEMÁNTICO] WARNING: Variable '{simbolo.nombre}' declarada pero nunca usada.")
         
     #DECLARACIONES
         
@@ -72,8 +79,8 @@ class Escucha (compiladorListener) :
                 self.ts.addSimbolo(var)
                 print(f"Declarada variable '{nombre}' tipo {tipo}, inicializada: {var.inicializado}")
     
-    #EXIT ASIGNACION
     # def exitAsignacion(self, ctx:compiladorParser.AsignacionContext):
+    #     # Lado izquierdo
     #     nombre = ctx.ID().getText()
     #     simbolo = self.ts.buscarSimbolo(nombre)
     #     if simbolo is None:
@@ -82,33 +89,82 @@ class Escucha (compiladorListener) :
     #         print(f"[SEMÁNTICO] Error: '{nombre}' no es una variable.")
     #     else:
     #         simbolo.setInicializado()
-    #         print(f"Variable '{nombre}' asignada.")
-    
+            
+    #     texto = ctx.getText()       # Ejemplo: "a=b"
+    #     lado_derecho = texto.split('=')[1].strip().rstrip(';')
+
+        # posibles_ids = re.findall(r'\b[a-zA-Z_][a-zA-Z0-9_]*\b', lado_derecho)
+
+        # for id_ in posibles_ids:
+        #     # Ignorar si es un número o palabra reservada tipo 'int', 'float', etc. (opcional)
+        #     if id_.isdigit():
+        #         continue  # ignora números tipo "123"
+
+        #     simbolo_valor = self.ts.buscarSimbolo(id_)
+        #     if simbolo_valor is None:
+        #         print(f"[SEMÁNTICO] Error: variable '{id_}' usada sin declarar.")
+        #     elif isinstance(simbolo_valor, Variables):
+        #         simbolo_valor.setUsado()
+        #         if not simbolo_valor.inicializado:
+        #             print(f"[SEMÁNTICO] Error: variable '{id_}' usada sin inicializar.")
+        #         else:
+        #             print(f"Variable '{id_}' usada correctamente en asignación.")
+        
     def exitAsignacion(self, ctx:compiladorParser.AsignacionContext):
         # Lado izquierdo
         nombre = ctx.ID().getText()
         simbolo = self.ts.buscarSimbolo(nombre)
         if simbolo is None:
             print(f"[SEMÁNTICO] Error: variable '{nombre}' no declarada.")
+            return
         elif not isinstance(simbolo, Variables):
             print(f"[SEMÁNTICO] Error: '{nombre}' no es una variable.")
+            return
         else:
             simbolo.setInicializado()
-            print(f"Variable '{nombre}' asignada.")
 
-        texto = ctx.getText()       # Ejemplo: "a=b"
+        # Lado derecho
+        texto = ctx.getText()       # Ejemplo: "a = b + c"
         lado_derecho = texto.split('=')[1].strip().rstrip(';')
 
-        # Buscamos si es un identificador existente
-        simbolo_valor = self.ts.buscarSimbolo(lado_derecho)
-        if simbolo_valor is None:
-            print(f"[SEMÁNTICO] Error: variable '{lado_derecho}' usada sin declarar.")
-        elif isinstance(simbolo_valor, Variables):
-            simbolo_valor.setUsado()
-            if not simbolo_valor.inicializado:
-                print(f"[SEMÁNTICO] Error: variable '{lado_derecho}' usada sin inicializar.")
+        # Buscar todos los identificadores en el lado derecho
+        ids_derecha = re.findall(r'\b[a-zA-Z_]\w*\b', lado_derecho)
+
+        for nombre_valor in ids_derecha:
+            # Ignorar números
+            if nombre_valor.isdigit():
+                continue
+
+            simbolo_valor = self.ts.buscarSimbolo(nombre_valor)
+            if simbolo_valor is None:
+                print(f"[SEMÁNTICO] Error: variable '{nombre_valor}' usada sin declarar.")
+                continue
+
+            # Verificar inicialización
+            if not getattr(simbolo_valor, "inicializado", False):
+                print(f"[SEMÁNTICO] Error: variable '{nombre_valor}' usada sin inicializar.")
+
+            # 🔍 Verificar compatibilidad de tipos
+            tipo_izq = getattr(simbolo, "tipo", None)
+            if tipo_izq is None and hasattr(simbolo, "getTipo"):
+                tipo_izq = simbolo.getTipo()
+            elif tipo_izq is None and hasattr(simbolo, "getTipoDato"):
+                tipo_izq = simbolo.getTipoDato()
+
+            tipo_der = getattr(simbolo_valor, "tipo", None)
+            if tipo_der is None and hasattr(simbolo_valor, "getTipo"):
+                tipo_der = simbolo_valor.getTipo()
+            elif tipo_der is None and hasattr(simbolo_valor, "getTipoDato"):
+                tipo_der = simbolo_valor.getTipoDato()
+
+            if tipo_izq is not None and tipo_der is not None and tipo_izq != tipo_der:
+                print(f"[SEMÁNTICO] Error: tipos incompatibles en asignación '{nombre} = {nombre_valor}' "
+                    f"({tipo_izq} ← {tipo_der})")
             else:
-                print(f"Variable '{lado_derecho}' usada correctamente en asignación.")
+                simbolo_valor.setUsado()
+                print(f"Variable '{nombre_valor}' usada correctamente en asignación.")
+
+
 
     
     #EXIT PROTOTIPADO FUNCION

@@ -1,5 +1,6 @@
 int a, b=2;
-int c;
+int x, y=3
+double c;
 a = c;
 a = b;
 {
