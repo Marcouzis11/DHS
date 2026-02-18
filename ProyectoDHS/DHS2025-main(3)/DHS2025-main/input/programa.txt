@@ -1,6 +1,6 @@
 int a, b=2;
 int x, y=3;
-void caca();
+void pepe();
 a = c;
 a = b;
 {
