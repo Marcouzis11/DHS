@@ -31,9 +31,14 @@ class TS:
         self.contexto.append(Contexto())
 
     def delContexto(self):
-        if self.contexto:
+        if len(self.contexto) > 1:
             eliminado = self.contexto.pop()
             self.historial.append(eliminado)
+        else:
+            print("[TS] Intento de eliminar el contexto GLOBAL ignorado.")
+        # if self.contexto:
+        #     eliminado = self.contexto.pop()
+        #     self.historial.append(eliminado)
 
     def addSimbolo(self, id_obj):
         if not self.contexto:
