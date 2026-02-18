@@ -1,0 +1,6 @@
+del tp2 tenemos que cambiar el autosuma y auto resta hacer en la tabla la declaracion de los 2 simbolos
+luego en el for dejar unicamente la primera asginacion en el for.
+agregar tipo de dato void para el final.
+modificar las logicas y conectarlas con las operaciones logicas, las comparaciones deben ser v o f.
+expresiones aritmeticas logicas deben ser revisadas.
+

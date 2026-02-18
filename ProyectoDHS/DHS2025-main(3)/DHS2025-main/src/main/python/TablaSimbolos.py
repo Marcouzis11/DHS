@@ -101,6 +101,20 @@ class TS:
         
     #     print("\n=========================")
     
+    def obtenerTodosLosSimbolos(self):
+        todos = []
+        # Primero, los contextos activos (incluye el global)
+        if hasattr(self, 'contexto') and self.contexto:
+            for ctx in self.contexto:
+                if hasattr(ctx, 'simbolos'):
+                    todos.extend(ctx.simbolos.values())
+        # Luego, los contextos cerrados (historial)
+        if hasattr(self, 'historial') and self.historial:
+            for ctx in self.historial:
+                if hasattr(ctx, 'simbolos'):
+                    todos.extend(ctx.simbolos.values())
+        return todos
+    
     def mostrarTablaCompleta(self):
         print("\n=== TABLA DE SÍMBOLOS COMPLETA ===")
 

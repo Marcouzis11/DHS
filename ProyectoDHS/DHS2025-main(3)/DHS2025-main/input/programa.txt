@@ -1,4 +1,7 @@
 int a, b=2;
+int x, y=3;
+void caca();
+a = c;
 a = b;
 {
     int c = 10;
@@ -7,9 +10,9 @@ a = b;
 }
 int a;    
 x = 5;        
-void f();
+int f();
 int f() {
     int z;
     z = a;
 }
-f();
+f();z=a;

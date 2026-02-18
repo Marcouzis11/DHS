@@ -1,0 +1,3 @@
+El diccionario es mejor con dict y no con {}
+Controlar en delContexto que no se borre nunca el contexto global, los otros si.
+si contexto size =1 no se deberia borrar
