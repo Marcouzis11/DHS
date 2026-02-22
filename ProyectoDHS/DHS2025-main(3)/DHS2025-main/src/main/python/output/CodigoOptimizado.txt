@@ -1,0 +1,7 @@
+main:
+pop t0
+c = 15
+jmp L2
+L2:
+push c
+jmp t0

@@ -1,18 +1,21 @@
-int a, b=2;
-int x, y=3;
-void pepe();
-a = c;
-a = b;
-{
-    int c = 10;
-    a = c;
-    b = (a + c);
+int main() {
+    int a;
+    int b;
+    int c;
+
+    a = 5;
+    b = 10;
+    c = a + b;
+
+    if (false) {
+        a = 100;
+        b = 200;
+    }
+
+    int x = 3;
+    x = 4;
+
+    int y = x + 0;
+
+    return c;
 }
-int a;    
-x = 5;        
-int f();
-int f() {
-    int z;
-    z = a;
-}
-f();z=a;

@@ -1,0 +1,16 @@
+main:
+pop t0
+a = 5
+b = 10
+t1 = a + b
+c = t1
+if false jmp L1
+jmp L2
+L1:
+a = 100
+b = 200
+L2:
+x = 4
+t2 = x + 0
+push c
+jmp t0

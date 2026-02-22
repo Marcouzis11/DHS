@@ -1,0 +1,30 @@
+int doble(int x);
+
+int main() {
+    int a, i;
+
+    a = 3;
+
+    if (a < 5) {
+        a = a + 2;
+    }
+
+    for (i = 0; i < 3; i = i + 1) {
+        a = a + i;
+    }
+
+
+    while (a < 15) {
+        a = a + 1;
+    }
+
+    a = doble(a);
+
+    return a;
+}
+
+int doble(int x) {
+    int r;
+    r = x * 2;
+    return r;
+}

@@ -3,7 +3,8 @@ class Contexto:
         self.simbolos = {}  # diccionario de símbolos
 
     def addSimbolo(self, id_obj):
-        nombre = id_obj.getNombre()
+        # Usamos duck typing para obtener el nombre independientemente de la implementación de la clase ID
+        nombre = id_obj.getNombre() if hasattr(id_obj, "getNombre") else getattr(id_obj, "nombre", None)
         if nombre in self.simbolos:
             raise Exception(f"Error: El símbolo '{nombre}' ya existe en este contexto")
         self.simbolos[nombre] = id_obj
@@ -18,8 +19,8 @@ class TS:
     def __init__(self):
         if TS._instancia is not None:
             raise Exception("TS es singleton, usa getTablaSimbolo()")
-        self.contexto = [Contexto()]  # lista de Contextos
-        self.historial = []
+        self.contexto = [Contexto()]  # lista de Contextos (el primero es GLOBAL)
+        self.historial = []           # Almacena contextos cerrados para el reporte final
 
     @classmethod
     def getTablaSimbolo(cls):
@@ -36,9 +37,6 @@ class TS:
             self.historial.append(eliminado)
         else:
             print("[TS] Intento de eliminar el contexto GLOBAL ignorado.")
-        # if self.contexto:
-        #     eliminado = self.contexto.pop()
-        #     self.historial.append(eliminado)
 
     def addSimbolo(self, id_obj):
         if not self.contexto:
@@ -46,7 +44,7 @@ class TS:
         self.contexto[-1].addSimbolo(id_obj)
 
     def buscarSimbolo(self, nombre):
-        # Busca desde el contexto más interno hacia afuera
+        # Busca desde el contexto más interno hacia afuera (Regla de Scope)
         for ctx in reversed(self.contexto):
             simbolo = ctx.buscarSimbolo(nombre)
             if simbolo:
@@ -58,105 +56,70 @@ class TS:
             return None
         return self.contexto[-1].buscarSimbolo(nombre)
 
-    # def mostrarTabla(self):
-    #     print("\n======= 🧠 TABLA DE SÍMBOLOS =======")
-
-    #     if not self.contexto:
-    #         print("⚠️  No hay contextos registrados.")
-    #         return
-
-    #     for i, ctx in enumerate(self.contexto):
-    #         print(f"\n--- Contexto {i} ---")
-    #         if ctx.simbolos:
-    #             for nombre, simbolo in ctx.simbolos.items():
-    #                 print(f"  {nombre:<15} -> {simbolo}")
-    #         else:
-    #             print("  (vacío)")
-
-    #     print("====================================\n")
-    
-    # def mostrarTabla(self):
-    #     print("\n=== TABLA DE SÍMBOLOS ===")
+    # --- NUEVA FUNCIÓN PARA EXPORTAR ARCHIVO REQUERIDO POR CONSIGNA ---
+    def generarReporteTabla(self, ruta="./output/tabla_simbolos.txt"):
+        """ Genera el archivo de texto con todos los símbolos para el informe final """
+        import os
+        os.makedirs(os.path.dirname(ruta), exist_ok=True)
         
-    #     if not self.contexto:
-    #         print("No hay contextos.")
-    #         return
-
-    #     for i, ctx in enumerate(self.contexto):
-    #         nombre_ctx = "GLOBAL" if i == 0 else f"LOCAL {i}"
-    #         print(f"\n-- Contexto {nombre_ctx} --")
+        with open(ruta, "w", encoding="utf-8") as f:
+            f.write("=== REPORTE DE TABLA DE SÍMBOLOS ===\n\n")
             
-    #         if not ctx.simbolos:
-    #             print("  (vacío)")
-    #             continue
+            # Unimos contextos activos y cerrados para el reporte completo
+            todos_los_contextos = self.contexto + self.historial
+            
+            for i, ctx in enumerate(todos_los_contextos):
+                nombre_ctx = "GLOBAL" if i == 0 else f"LOCAL {i}"
+                f.write(f"-- Contexto {nombre_ctx} --\n")
                 
-    #         for nombre, simbolo in ctx.simbolos.items():
-    #             tipo = simbolo.getTipoDato()
-    #             inicializado = "Sí" if simbolo.inicializado else "No"
-    #             usado = "Sí" if simbolo.usado else "No"
-                
-    #             # Si es función, mostrar argumentos
-    #             args_str = ""
-    #             if simbolo.__class__.__name__ == "Funcion":
-    #                 args = simbolo.getListaArgs()
-    #                 if args:
-    #                     args_str = f", args=[{', '.join(arg.getNombre() for arg in args)}]"
-                
-    #             print(f"  {nombre}: {tipo} (init={inicializado}, usado={usado}{args_str})")
-        
-    #     print("\n=========================")
-    
+                if ctx.simbolos:
+                    f.write(f"{'Nombre':<15} | {'Tipo':<10} | {'Init':<6} | {'Usado':<6}\n")
+                    f.write("-" * 50 + "\n")
+                    for nombre, simbolo in ctx.simbolos.items():
+                        # Adaptación dinámica de atributos
+                        tipo = getattr(simbolo, "tipo", "—")
+                        if hasattr(simbolo, "getTipoDato"): tipo = simbolo.getTipoDato()
+                        
+                        ini = "Sí" if getattr(simbolo, "inicializado", False) else "No"
+                        use = "Sí" if getattr(simbolo, "usado", False) else "No"
+                        
+                        f.write(f"{nombre:<15} | {str(tipo):<10} | {ini:<6} | {use:<6}\n")
+                else:
+                    f.write("   (vacío)\n")
+                f.write("\n")
+        print(f"Reporte de Tabla de Símbolos generado en: {ruta}")
+
     def obtenerTodosLosSimbolos(self):
         todos = []
-        # Primero, los contextos activos (incluye el global)
         if hasattr(self, 'contexto') and self.contexto:
             for ctx in self.contexto:
                 if hasattr(ctx, 'simbolos'):
                     todos.extend(ctx.simbolos.values())
-        # Luego, los contextos cerrados (historial)
         if hasattr(self, 'historial') and self.historial:
             for ctx in self.historial:
                 if hasattr(ctx, 'simbolos'):
                     todos.extend(ctx.simbolos.values())
         return todos
-    
-    def mostrarTablaCompleta(self):
-        print("\n=== TABLA DE SÍMBOLOS COMPLETA ===")
 
-        # Orden correcto: primero el global, luego los que se cerraron (historial)
+    def mostrarTablaCompleta(self):
+        # Mantiene tu función de consola original intacta
+        print("\n=== TABLA DE SÍMBOLOS COMPLETA ===")
         todos_los_contextos = []
-        if self.contexto:
-            todos_los_contextos.extend(self.contexto)  # Contextos activos (incluye global)
-        if self.historial:
-            todos_los_contextos.extend(self.historial)  # Contextos cerrados
+        if self.contexto: todos_los_contextos.extend(self.contexto)
+        if self.historial: todos_los_contextos.extend(self.historial)
 
         if not todos_los_contextos:
             print("(No hay contextos registrados)")
             return
 
         for i, ctx in enumerate(todos_los_contextos):
-            if i == 0:
-                print("\n-- Contexto GLOBAL --")
-            else:
-                print(f"\n-- Contexto LOCAL {i} --")
-
+            print("\n-- Contexto GLOBAL --" if i == 0 else f"\n-- Contexto LOCAL {i} --")
             if ctx.simbolos:
                 for nombre, simbolo in ctx.simbolos.items():
-                    # Intentamos obtener el tipo desde varias formas
-                    tipo = getattr(simbolo, "tipo", None)
-                    if tipo is None and hasattr(simbolo, "getTipo"):
-                        tipo = simbolo.getTipo()
-                    elif tipo is None and hasattr(simbolo, "getTipoDato"):
-                        tipo = simbolo.getTipoDato()
-                    if tipo is None:
-                        tipo = "—"
-
-                    inicializado = getattr(simbolo, "inicializado", False)
-                    usado = getattr(simbolo, "usado", False)
-                    ini = "Sí" if inicializado else "No"
-                    use = "Sí" if usado else "No"
+                    tipo = getattr(simbolo, "tipo", "—")
+                    ini = "Sí" if getattr(simbolo, "inicializado", False) else "No"
+                    use = "Sí" if getattr(simbolo, "usado", False) else "No"
                     print(f"  {nombre}: {tipo} (init={ini}, usado={use})")
             else:
                 print("  (vacío)")
-
         print("\n=========================\n")
