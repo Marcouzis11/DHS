@@ -57,37 +57,49 @@ class TS:
         return self.contexto[-1].buscarSimbolo(nombre)
 
     # --- NUEVA FUNCIÓN PARA EXPORTAR ARCHIVO REQUERIDO POR CONSIGNA ---
-    def generarReporteTabla(self, ruta="./output/tabla_simbolos.txt"):
-        """ Genera el archivo de texto con todos los símbolos para el informe final """
+    def generarReporteTabla(self):
+        """Genera el archivo output/tabla_de_simbolos.txt correctamente"""
+
         import os
-        os.makedirs(os.path.dirname(ruta), exist_ok=True)
-        
-        with open(ruta, "w", encoding="utf-8") as f:
+
+        # Obtener directorio donde está este archivo .py
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Construir ruta absoluta segura
+        carpeta_output = os.path.join(base_dir, "output")
+        ruta_archivo = os.path.join(carpeta_output, "tabla_de_simbolos.txt")
+
+        # Crear carpeta si no existe
+        os.makedirs(carpeta_output, exist_ok=True)
+
+        with open(ruta_archivo, "w", encoding="utf-8") as f:
             f.write("=== REPORTE DE TABLA DE SÍMBOLOS ===\n\n")
-            
-            # Unimos contextos activos y cerrados para el reporte completo
+
             todos_los_contextos = self.contexto + self.historial
-            
+
             for i, ctx in enumerate(todos_los_contextos):
                 nombre_ctx = "GLOBAL" if i == 0 else f"LOCAL {i}"
                 f.write(f"-- Contexto {nombre_ctx} --\n")
-                
+
                 if ctx.simbolos:
                     f.write(f"{'Nombre':<15} | {'Tipo':<10} | {'Init':<6} | {'Usado':<6}\n")
                     f.write("-" * 50 + "\n")
+
                     for nombre, simbolo in ctx.simbolos.items():
-                        # Adaptación dinámica de atributos
                         tipo = getattr(simbolo, "tipo", "—")
-                        if hasattr(simbolo, "getTipoDato"): tipo = simbolo.getTipoDato()
-                        
+                        if hasattr(simbolo, "getTipoDato"):
+                            tipo = simbolo.getTipoDato()
+
                         ini = "Sí" if getattr(simbolo, "inicializado", False) else "No"
                         use = "Sí" if getattr(simbolo, "usado", False) else "No"
-                        
+
                         f.write(f"{nombre:<15} | {str(tipo):<10} | {ini:<6} | {use:<6}\n")
                 else:
                     f.write("   (vacío)\n")
+
                 f.write("\n")
-        print(f"Reporte de Tabla de Símbolos generado en: {ruta}")
+
+        print(f"Reporte generado en: {ruta_archivo}")
 
     def obtenerTodosLosSimbolos(self):
         todos = []

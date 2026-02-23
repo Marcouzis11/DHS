@@ -109,8 +109,31 @@ class Escucha (compiladorListener) :
             else:
                 simbolo_valor.setUsado()
                 print(f"Variable '{nombre_valor}' usada correctamente en asignación.")
+                
+    def exitAuto(self, ctx: compiladorParser.AutoContext):
+        pass
 
+    def exitAutosuma(self, ctx: compiladorParser.AutosumaContext):
+        nombre = ctx.ID().getText()
+        simbolo = self.ts.buscarSimbolo(nombre)
+        if simbolo is None:
+            print(f"[SEMÁNTICO] Error: variable '{nombre}' no declarada.")
+        elif not isinstance(simbolo, Variables):
+            print(f"[SEMÁNTICO] Error: '{nombre}' no es una variable.")
+        else:
+            simbolo.setUsado()
+            simbolo.setInicializado()
 
+    def exitAutoresta(self, ctx: compiladorParser.AutorestaContext):
+        nombre = ctx.ID().getText()
+        simbolo = self.ts.buscarSimbolo(nombre)
+        if simbolo is None:
+            print(f"[SEMÁNTICO] Error: variable '{nombre}' no declarada.")
+        elif not isinstance(simbolo, Variables):
+            print(f"[SEMÁNTICO] Error: '{nombre}' no es una variable.")
+        else:
+            simbolo.setUsado()
+            simbolo.setInicializado()
 
     
     #EXIT PROTOTIPADO FUNCION
@@ -193,8 +216,18 @@ class Escucha (compiladorListener) :
         if for_ctx is not None:
             if for_ctx.tipo() is not None:
                 tipo = for_ctx.tipo().getText()
-                nombre = for_ctx.asignacionSimple(0).ID().getText()
-                if not self.ts.buscarSimboloContexto(nombre):
+                # Obtener nombre de la variable del for
+                if for_ctx.asignacionSimple() and len(for_ctx.asignacionSimple()) > 0:
+                    nombre = for_ctx.asignacionSimple(0).ID().getText()
+                elif for_ctx.auto():
+                    if for_ctx.auto().autosuma():
+                        nombre = for_ctx.auto().autosuma().ID().getText()
+                    else:
+                        nombre = for_ctx.auto().autoresta().ID().getText()
+                else:
+                    nombre = None
+
+                if nombre and not self.ts.buscarSimboloContexto(nombre):
                     var = Variables(nombre, tipo)
                     var.setInicializado()
                     self.ts.addSimbolo(var)

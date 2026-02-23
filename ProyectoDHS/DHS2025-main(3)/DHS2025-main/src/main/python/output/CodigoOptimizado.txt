@@ -1,7 +1,13 @@
 main:
 pop t0
 a = 2
+b = 3
+c = 4
+k = 20
+m = 20
+r = 14
 jmp L2
+t = 999
 L2:
 i = 0
 L4:
@@ -9,6 +15,8 @@ t6 = i < 3
 if t6 jmp L5
 jmp L6
 L5:
+t7 = i + 1
+i = t7
 jmp L4
 L6:
 j = 0
@@ -17,11 +25,16 @@ t8 = j < 2
 if t8 jmp L8
 jmp L9
 L8:
+t9 = m + j
+m = t9
+t10 = j + 1
+j = t10
 jmp L7
 L9:
 push a
 push L10
 jmp cuadrado
+L10:
 pop t11
 z = t11
 push z

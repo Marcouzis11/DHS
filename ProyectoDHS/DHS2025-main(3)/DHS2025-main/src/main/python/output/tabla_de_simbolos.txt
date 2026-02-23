@@ -1,0 +1,39 @@
+=== REPORTE DE TABLA DE SÍMBOLOS ===
+
+-- Contexto GLOBAL --
+Nombre          | Tipo       | Init   | Usado 
+--------------------------------------------------
+cuadrado        | int        | No     | Sí    
+main            | int        | No     | No    
+
+-- Contexto LOCAL 1 --
+Nombre          | Tipo       | Init   | Usado 
+--------------------------------------------------
+t               | int        | Sí     | No    
+
+-- Contexto LOCAL 2 --
+   (vacío)
+
+-- Contexto LOCAL 3 --
+Nombre          | Tipo       | Init   | Usado 
+--------------------------------------------------
+j               | int        | Sí     | Sí    
+
+-- Contexto LOCAL 4 --
+Nombre          | Tipo       | Init   | Usado 
+--------------------------------------------------
+a               | int        | Sí     | Sí    
+b               | int        | Sí     | Sí    
+c               | int        | Sí     | Sí    
+k               | int        | Sí     | Sí    
+m               | int        | Sí     | Sí    
+r               | int        | Sí     | No    
+i               | int        | Sí     | Sí    
+z               | int        | Sí     | No    
+
+-- Contexto LOCAL 5 --
+Nombre          | Tipo       | Init   | Usado 
+--------------------------------------------------
+x               | int        | Sí     | Sí    
+y               | int        | Sí     | No    
+

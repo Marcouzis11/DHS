@@ -1,4 +1,5 @@
 import os
+import re
 
 class Optimizador:
 
@@ -29,8 +30,8 @@ class Optimizador:
 
         if inicio < len(lineas):
             self.bloques.append((inicio, len(lineas) - 1))
-
-    #PROPAGACIÓN DE CONSTANTES Y FOLDING
+            
+    #OPTIMIZACIÓN DE CADA BLOQUE (Propagación de constantes y simplificación de expresiones)
     def optimizar_bloque(self, lineas, inicio, fin):
         constantes = {}
 
@@ -41,7 +42,6 @@ class Optimizador:
             if not partes:
                 continue
 
-            #OPTIMIZACIÓN EN ASIGNACIONES
             if len(partes) >= 3 and partes[1] == "=":
                 izquierda = partes[0]
 
@@ -49,7 +49,7 @@ class Optimizador:
                     del constantes[izquierda]
 
                 # a = 3
-                if len(partes) == 3 and partes[2].isdigit():
+                if len(partes) == 3 and partes[2].lstrip('-').isdigit():
                     constantes[izquierda] = int(partes[2])
                     lineas[i] = f"{izquierda} = {partes[2]}\n"
                     continue
@@ -72,72 +72,104 @@ class Optimizador:
                     if op2 in constantes:
                         op2 = str(constantes[op2])
 
-                    if op1.isdigit() and op2.isdigit():
-                        resultado = eval(f"{op1} {operador} {op2}")
-                        constantes[izquierda] = resultado
-                        lineas[i] = f"{izquierda} = {resultado}\n"
+                    if op1.lstrip('-').isdigit() and op2.lstrip('-').isdigit():
+                        try:
+                            if operador == '==':
+                                resultado = int(op1) == int(op2)
+                            elif operador == '!=':
+                                resultado = int(op1) != int(op2)
+                            elif operador == '>':
+                                resultado = int(op1) > int(op2)
+                            elif operador == '<':
+                                resultado = int(op1) < int(op2)
+                            elif operador == '>=':
+                                resultado = int(op1) >= int(op2)
+                            elif operador == '<=':
+                                resultado = int(op1) <= int(op2)
+                            else:
+                                resultado = eval(f"{op1} {operador} {op2}")
+                            constantes[izquierda] = resultado
+                            lineas[i] = f"{izquierda} = {resultado}\n"
+                        except:
+                            lineas[i] = f"{izquierda} = {op1} {operador} {op2}\n"
                     else:
                         lineas[i] = f"{izquierda} = {op1} {operador} {op2}\n"
 
-            #OPTIMIZACIÓN IF
             elif partes[0] == "if":
                 condicion = partes[1]
+                label_true = partes[3]
 
-                if condicion in constantes:
-                    valor = constantes[condicion]
+                valor = constantes.get(condicion, condicion)
 
-                    if valor == 0:
-                        # nunca entra entonces elimina el codigo
-                        lineas[i] = ""
-                    else:
-                        # siempre entra lo convertir en jmp directo
-                        lineas[i] = f"jmp {partes[3]}\n"
-
-                elif condicion == "false":
+                if valor is False or valor == 0 or valor == "False":
+                    # Nunca entra: convertir en jmp al label falso (la línea siguiente)
                     lineas[i] = ""
-
-                elif condicion == "true":
-                    lineas[i] = f"jmp {partes[3]}\n"
-
-    #ELIMINAR CODIGO MUERTO (Se hace de atras para adelante)
-    def eliminar_codigo_muerto(self, lineas, inicio, fin):
-
-        vivas = set()
-
-        for i in range(fin, inicio - 1, -1):
+                elif valor is True or (str(valor).lstrip('-').isdigit() and int(valor) != 0) or valor == "True":
+                    # Siempre entra: convertir en jmp directo
+                    lineas[i] = f"jmp {label_true}\n"
+                    
+    #ELIMINAR BLOQUES MUERTOS (Bloques que nunca se ejecutan porque no hay saltos a ellos, o porque su condición es siempre falsa)
+    def eliminar_bloques_muertos(self, lineas):
+        resultado = []
+        i = 0
+        while i < len(lineas):
             linea = lineas[i].strip()
             partes = linea.split()
 
+            if partes and partes[0] == "jmp":
+                resultado.append(lineas[i])
+                i += 1
+                bloque_muerto = []
+                while i < len(lineas):
+                    sig = lineas[i].strip()
+                    sig_partes = sig.split()
+                    if not sig_partes or sig_partes[0].endswith(":"):
+                        break
+                    bloque_muerto.append(lineas[i])
+                    i += 1
+
+                # Solo eliminar si todas las líneas son asignaciones a temporales
+                solo_temporales = all(
+                    re.match(r'^t\d+\s*=', b.strip()) or not b.strip()
+                    for b in bloque_muerto
+                )
+
+                if not solo_temporales:
+                    resultado.extend(bloque_muerto)
+            else:
+                resultado.append(lineas[i])
+                i += 1
+        return resultado
+    
+
+    #ELIMINAR CODIGO MUERTO (Se hace de atras para adelante)
+    def eliminar_codigo_muerto(self, lineas, inicio, fin):
+        # Primero recolectar TODAS las variables que se usan en cualquier lado
+        usadas = set()
+        for i in range(inicio, fin + 1):
+            linea = lineas[i].strip()
+            partes = linea.split()
             if not partes:
                 continue
+            if len(partes) >= 3 and partes[1] == "=":
+                for token in partes[2:]:
+                    if token.isidentifier():
+                        usadas.add(token)
+            elif partes[0] in ("push", "if", "jmp", "pop"):
+                for token in partes[1:]:
+                    if token.isidentifier():
+                        usadas.add(token)
 
-            # Asignaciones
+        # Luego eliminar solo temporales que nunca se usan
+        for i in range(inicio, fin + 1):
+            linea = lineas[i].strip()
+            partes = linea.split()
+            if not partes:
+                continue
             if len(partes) >= 3 and partes[1] == "=":
                 var = partes[0]
-
-                if var not in vivas:
+                if re.match(r'^t\d+$', var) and var not in usadas:
                     lineas[i] = ""
-                else:
-                    vivas.remove(var)
-
-                    for token in partes[2:]:
-                        if token.isidentifier():
-                            vivas.add(token)
-
-            # push usa variable
-            elif partes[0] == "push":
-                if partes[1].isidentifier():
-                    vivas.add(partes[1])
-
-            # if usa variable
-            elif partes[0] == "if":
-                if partes[1].isidentifier():
-                    vivas.add(partes[1])
-
-            # jmp t0 (usa variable)
-            elif partes[0] == "jmp":
-                if len(partes) > 1 and partes[1].isidentifier():
-                    vivas.add(partes[1])
                     
     def eliminar_etiquetas_inutiles(self, lineas):
 
@@ -156,20 +188,21 @@ class Optimizador:
                 nombre = partes[0][:-1]
                 etiquetas_definidas.add(nombre)
 
-            # Etiqueta usada
+            # Etiqueta usada en jmp
             if partes[0] == "jmp":
-                if len(partes) > 1 and not partes[1].isidentifier():
+                if len(partes) > 1:
                     etiquetas_usadas.add(partes[1])
 
-                elif len(partes) > 1:
-                    etiquetas_usadas.add(partes[1])
-
+            # Etiqueta usada en if
             if partes[0] == "if":
                 etiquetas_usadas.add(partes[3])
 
-        # Eliminar etiquetas no usadas
-        nuevas_lineas = []
+            # ← CAMBIO: Etiqueta usada en push (dirección de retorno)
+            if partes[0] == "push":
+                if len(partes) > 1 and re.match(r'^L\d+$', partes[1]):
+                    etiquetas_usadas.add(partes[1])
 
+        # Eliminar etiquetas no usadas
         nuevas_lineas = []
         primera_etiqueta = None
 
@@ -207,11 +240,20 @@ class Optimizador:
 
         self.generar_bloques(lineas)
 
-        # Optimizar cada bloque
+        # Optimizar cada bloque, primera pasada:
         for inicio, fin in self.bloques:
             self.optimizar_bloque(lineas, inicio, fin)
-        self.eliminar_codigo_muerto(lineas, 0, len(lineas) - 1)
         lineas = self.limpiar_codigo(lineas)
+        # Segunda pasada: regenerar bloques sobre código ya optimizado y eliminar muertos
+        while True:
+            antes = list(lineas)
+            self.generar_bloques(lineas)
+            for inicio, fin in self.bloques:
+                self.optimizar_bloque(lineas, inicio, fin)
+            self.eliminar_codigo_muerto(lineas, 0, len(lineas) - 1)
+            lineas = self.limpiar_codigo(lineas)
+            if lineas == antes:
+                break
         lineas = self.eliminar_etiquetas_inutiles(lineas)
 
         with open(self.archivo_salida, "w", encoding="utf-8") as f:

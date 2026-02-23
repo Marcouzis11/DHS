@@ -13,7 +13,7 @@ int main() {
     while (i < 3) {
         i = i + 1;
     }
-    for (int j = 0; j < 2; j = j + 1) {
+    for (int j = 0; j < 2; j++) {
         m = m + j;
     }
     int z = cuadrado(a);

@@ -83,6 +83,21 @@ class Walker(compiladorVisitor):
         valor = self.visit(ctx.opal())
         self.archivo.write(f"{id_name} = {valor}\n")
         
+    def visitAuto(self, ctx):
+        return self.visitChildren(ctx)
+
+    def visitAutosuma(self, ctx):
+        nombre = ctx.ID().getText()
+        temp = self.nuevoTemp()
+        self.archivo.write(f"{temp} = {nombre} + 1\n")
+        self.archivo.write(f"{nombre} = {temp}\n")
+
+    def visitAutoresta(self, ctx):
+        nombre = ctx.ID().getText()
+        temp = self.nuevoTemp()
+        self.archivo.write(f"{temp} = {nombre} - 1\n")
+        self.archivo.write(f"{nombre} = {temp}\n")
+            
     #Ingresa a las opal y sigue toda la precedencia de operadores
     def visitOpal(self, ctx):
         return self.visit(ctx.expOR())
@@ -244,15 +259,25 @@ class Walker(compiladorVisitor):
         
         #Escribe el for con los labels correspondientes (utiliza if para la condición)
     def visitIfor(self, ctx):
-        
+        # Inicializador
         if ctx.tipo() is None:
             self.visit(ctx.asignacion())
-            asigs = ctx.asignacionSimple()
-            incremento_ctx = asigs[0]
         else:
-            asigs = ctx.asignacionSimple()
-            self.visit(asigs[0])
-            incremento_ctx = asigs[1]
+            self.visit(ctx.asignacionSimple(0))
+
+        # Incremento: puede ser asignacionSimple o auto
+        if ctx.tipo() is None:
+            # for (a = 0; cond; incremento)
+            if ctx.auto():
+                incremento_ctx = ctx.auto()
+            else:
+                incremento_ctx = ctx.asignacionSimple(0)
+        else:
+            # for (int j = 0; cond; incremento)
+            if ctx.auto():
+                incremento_ctx = ctx.auto()
+            else:
+                incremento_ctx = ctx.asignacionSimple(1)
 
         start = self.get_label()
         body = self.get_label()
@@ -260,7 +285,6 @@ class Walker(compiladorVisitor):
 
         self.archivo.write(start + ":\n")
 
-        #IF del for
         cond = self.visit(ctx.opal())
         self.archivo.write(f"if {cond} jmp {body}\n")
         self.archivo.write(f"jmp {end}\n")

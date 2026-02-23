@@ -68,6 +68,7 @@ def main(argv):
     #print(" - tabla_simbolos.txt")
     print(" - codigoIntermedio.txt")
     print(" - CodigoOptimizado.txt")
+    TS.getTablaSimbolo().generarReporteTabla()
 
 if __name__ == '__main__':
     main(sys.argv)
