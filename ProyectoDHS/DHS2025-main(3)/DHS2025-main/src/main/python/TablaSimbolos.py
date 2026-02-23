@@ -116,7 +116,7 @@ class TS:
             print("\n-- Contexto GLOBAL --" if i == 0 else f"\n-- Contexto LOCAL {i} --")
             if ctx.simbolos:
                 for nombre, simbolo in ctx.simbolos.items():
-                    tipo = getattr(simbolo, "tipo", "—")
+                    tipo = simbolo.getTipoDato() if hasattr(simbolo, "getTipoDato") else "—"
                     ini = "Sí" if getattr(simbolo, "inicializado", False) else "No"
                     use = "Sí" if getattr(simbolo, "usado", False) else "No"
                     print(f"  {nombre}: {tipo} (init={ini}, usado={use})")

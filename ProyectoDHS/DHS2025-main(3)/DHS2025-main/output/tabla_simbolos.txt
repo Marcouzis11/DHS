@@ -1,7 +1,0 @@
-=== REPORTE DE TABLA DE SÍMBOLOS ===
-
--- Contexto GLOBAL --
-Nombre          | Tipo       | Init   | Usado 
---------------------------------------------------
-x               | int        | Sí     | No    
-

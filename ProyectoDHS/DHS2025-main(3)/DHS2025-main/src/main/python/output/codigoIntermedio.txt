@@ -9,51 +9,47 @@ t2 = k + 0
 m = t2
 t3 = b * c
 t4 = a + t3
-t5 = t4 > 10
-t6 = a == 2
-t7 = t5 && t6
-t8 = t7 || 0
-r = t8
-t9 = r == 1
-if t9 jmp L1
+r = t4
+t5 = r == 1
+if t5 jmp L1
 jmp L2
 L1:
 t = 999
 L2:
 i = 0
 L4:
-t10 = i < 3
-if t10 jmp L5
+t6 = i < 3
+if t6 jmp L5
 jmp L6
 L5:
-t11 = i + 1
-i = t11
+t7 = i + 1
+i = t7
 jmp L4
 L6:
 j = 0
 L7:
-t12 = j < 2
-if t12 jmp L8
+t8 = j < 2
+if t8 jmp L8
 jmp L9
 L8:
-t13 = m + j
-m = t13
-t14 = j + 1
-j = t14
+t9 = m + j
+m = t9
+t10 = j + 1
+j = t10
 jmp L7
 L9:
 push a
 push L10
 jmp cuadrado
 L10:
-pop t15
-z = t15
+pop t11
+z = t11
 push z
 jmp t0
 cuadrado:
-pop t16
+pop t12
 pop x
-t17 = x * x
-y = t17
+t13 = x * x
+y = t13
 push y
-jmp t16
+jmp t12
