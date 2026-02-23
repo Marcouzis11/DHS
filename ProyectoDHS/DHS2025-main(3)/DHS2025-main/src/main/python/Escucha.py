@@ -16,6 +16,7 @@ class Escucha (compiladorListener) :
     def __init__(self):
         self.ts = TS.getTablaSimbolo()
         self._params_pendientes = []
+        self.errores_semanticos = []
     
     def enterPrograma(self, ctx:compiladorParser.ProgramaContext):
         print("Comienza el parsing")
@@ -52,7 +53,9 @@ class Escucha (compiladorListener) :
                 for id_ in ids_derecha:
                     simbolo_val = self.ts.buscarSimbolo(id_)
                     if simbolo_val is None:
-                        print(f"[SEMÁNTICO] Error: variable '{id_}' usada sin declarar.")
+                        msg = f"[SEMÁNTICO] Error: variable '{id_}' usada sin declarar."
+                        print(msg)
+                        self.errores_semanticos.append(msg)
                     elif isinstance(simbolo_val, Variables):
                         simbolo_val.setUsado()
             else:
@@ -60,7 +63,9 @@ class Escucha (compiladorListener) :
                 var = Variables(nombre, tipo)
             
             if self.ts.buscarSimboloContexto(nombre):
-                print(f"[SEMÁNTICO] Error: variable '{nombre}' ya declarada en este contexto.")
+                msg = f"[SEMÁNTICO] Error: variable '{nombre}' ya declarada en este contexto."
+                print(msg)
+                self.errores_semanticos.append(msg)
             else:
                 self.ts.addSimbolo(var)
                 print(f"Declarada variable '{nombre}' tipo {tipo}, inicializada: {var.inicializado}")
@@ -70,10 +75,14 @@ class Escucha (compiladorListener) :
         nombre = ctx.ID().getText()
         simbolo = self.ts.buscarSimbolo(nombre)
         if simbolo is None:
-            print(f"[SEMÁNTICO] Error: variable '{nombre}' no declarada.")
+            msg = f"[SEMÁNTICO] Error: variable '{nombre}' no declarada."
+            print(msg)
+            self.errores_semanticos.append(msg)
             return
         elif not isinstance(simbolo, Variables):
-            print(f"[SEMÁNTICO] Error: '{nombre}' no es una variable.")
+            msg = f"[SEMÁNTICO] Error: '{nombre}' no es una variable."
+            print(msg)
+            self.errores_semanticos.append(msg)
             return
         else:
             simbolo.setInicializado()

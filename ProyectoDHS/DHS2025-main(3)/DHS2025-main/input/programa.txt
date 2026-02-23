@@ -6,8 +6,10 @@ int main() {
     int k = 10 * 2;
     int m = k + 0;
     int r = a + b * c;
-    if (r == 1) {
+    if (r == 1 && b == 3) {
         int t = 999;
+    }else{
+        int t = 111;
     }
     int i = 0;
     while (i < 3) {
@@ -17,9 +19,10 @@ int main() {
         m = m + j;
     }
     int z = cuadrado(a);
+    a = cuadrado(z);
     return z;
 }
 int cuadrado(int x) {
-    int y = x * x;
+    int y = x * x + 10 * 5;
     return y;
 }

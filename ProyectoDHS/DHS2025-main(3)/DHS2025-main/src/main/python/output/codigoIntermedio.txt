@@ -11,45 +11,58 @@ t3 = b * c
 t4 = a + t3
 r = t4
 t5 = r == 1
-if t5 jmp L1
+t6 = b == 3
+t7 = t5 && t6
+if t7 jmp L1
 jmp L2
 L1:
 t = 999
+jmp L3
 L2:
+t = 111
+L3:
 i = 0
 L4:
-t6 = i < 3
-if t6 jmp L5
+t8 = i < 3
+if t8 jmp L5
 jmp L6
 L5:
-t7 = i + 1
-i = t7
+t9 = i + 1
+i = t9
 jmp L4
 L6:
 j = 0
 L7:
-t8 = j < 2
-if t8 jmp L8
+t10 = j < 2
+if t10 jmp L8
 jmp L9
 L8:
-t9 = m + j
-m = t9
-t10 = j + 1
-j = t10
+t11 = m + j
+m = t11
+t12 = j + 1
+j = t12
 jmp L7
 L9:
 push a
 push L10
 jmp cuadrado
 L10:
-pop t11
-z = t11
+pop t13
+z = t13
+push z
+push L11
+jmp cuadrado
+L11:
+pop t14
+a = t14
 push z
 jmp t0
 cuadrado:
-pop t12
+pop t15
 pop x
-t13 = x * x
-y = t13
+t16 = x * x
+t17 = 10 * 5
+t18 = t16 + t17
+y = t18
 push y
-jmp t12
+jmp t15

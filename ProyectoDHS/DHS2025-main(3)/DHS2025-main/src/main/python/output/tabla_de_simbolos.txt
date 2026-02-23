@@ -12,14 +12,19 @@ Nombre          | Tipo       | Init   | Usado
 t               | int        | Sí     | No    
 
 -- Contexto LOCAL 2 --
-   (vacío)
+Nombre          | Tipo       | Init   | Usado 
+--------------------------------------------------
+t               | int        | Sí     | No    
 
 -- Contexto LOCAL 3 --
+   (vacío)
+
+-- Contexto LOCAL 4 --
 Nombre          | Tipo       | Init   | Usado 
 --------------------------------------------------
 j               | int        | Sí     | Sí    
 
--- Contexto LOCAL 4 --
+-- Contexto LOCAL 5 --
 Nombre          | Tipo       | Init   | Usado 
 --------------------------------------------------
 a               | int        | Sí     | Sí    
@@ -29,9 +34,9 @@ k               | int        | Sí     | Sí
 m               | int        | Sí     | Sí    
 r               | int        | Sí     | No    
 i               | int        | Sí     | Sí    
-z               | int        | Sí     | No    
+z               | int        | Sí     | Sí    
 
--- Contexto LOCAL 5 --
+-- Contexto LOCAL 6 --
 Nombre          | Tipo       | Init   | Usado 
 --------------------------------------------------
 x               | int        | Sí     | Sí    

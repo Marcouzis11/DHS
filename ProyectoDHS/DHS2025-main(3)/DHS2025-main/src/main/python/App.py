@@ -31,6 +31,7 @@ def main(argv):
     parser.removeErrorListeners()
     parser.addErrorListener(error_listener)
     
+    
     # 3. Ejecución del Parser y Listener Semántico
     # Aquí se puebla la Tabla de Símbolos y se verifican errores de contexto
     escucha = Escucha()
@@ -45,12 +46,14 @@ def main(argv):
         print("\nGeneración de código cancelada por errores.\n")
         return 
 
-    # # 5. Generación de Salidas (Pasos 3 y 4 de la consigna)
-    # print("\n[1/3] Generando Reporte de Tabla de Símbolos...")
-    # tabla = TS.getTablaSimbolo()
-    # # Usamos la función de reporte que añadimos a tu clase TS
-    # tabla.generarReporteTabla("./output/tabla_simbolos.txt")
-
+    if escucha.errores_semanticos:
+        errores_reales = [e for e in escucha.errores_semanticos if "for" not in e.lower()]
+        if errores_reales:
+            print("\n=== ERRORES SEMÁNTICOS DETECTADOS ===")
+            for e in errores_reales:
+                print(f" -> {e}")
+            print("\nGeneración de código cancelada por errores semánticos.\n")
+            return
     print("[2/3] Generando Código Intermedio (TAC)...")
     # El Walker recorre el árbol para traducir a tres direcciones
     walker = Walker()
