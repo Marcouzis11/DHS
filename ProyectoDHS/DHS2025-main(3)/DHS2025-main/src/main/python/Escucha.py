@@ -66,9 +66,9 @@ class Escucha (compiladorListener) :
         partes = [p.strip() for p in declaracion.split(',')]
         for parte in partes:
             if '=' in parte:
-                nombre, valor = [x.strip() for x in parte.split('=')]
+                nombre, valor = [x.strip() for x in parte.split('=',1)]
                 var = Variables(nombre, tipo)
-                var.setInicializado()  # ✅ solo si tiene un valor asignado
+                var.setInicializado()
             else:
                 nombre = parte
                 var = Variables(nombre, tipo)

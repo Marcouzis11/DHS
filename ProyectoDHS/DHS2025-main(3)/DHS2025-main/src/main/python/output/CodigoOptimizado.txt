@@ -1,0 +1,41 @@
+main:
+pop t0
+a = 2
+t7 = True && True
+t8 = t7 || 0
+r = t8
+t9 = r == 1
+if t9 jmp L1
+jmp L2
+L1:
+L2:
+i = 0
+L4:
+t10 = i < 3
+if t10 jmp L5
+jmp L6
+L5:
+jmp L4
+L6:
+j = 0
+L7:
+t12 = j < 2
+if t12 jmp L8
+jmp L9
+L8:
+jmp L7
+L9:
+push a
+push L10
+jmp cuadrado
+pop t15
+z = t15
+push z
+jmp t0
+cuadrado:
+pop t16
+pop x
+t17 = x * x
+y = t17
+push y
+jmp t16

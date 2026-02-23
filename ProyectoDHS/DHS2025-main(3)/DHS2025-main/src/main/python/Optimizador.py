@@ -11,9 +11,7 @@ class Optimizador:
 
         self.bloques = []
 
-    # -----------------------------------------------------
-    # GENERACIÓN DE BLOQUES BÁSICOS
-    # -----------------------------------------------------
+    #GENERADOR DE BLOQUES
     def generar_bloques(self, lineas):
         self.bloques = []
         inicio = 0

@@ -1,10 +1,32 @@
-a = 5;
-b = 10;
-c = 5;
+int main() {
+    a = 2;
+    int b = 3;
+    int c = 4;
 
-r1 = a == c || b > a && a != b;
-r2 = (a == c || b > a) && a != b;
-r3 = (a == c) || b > a && a != b;
-r4 = a == c && b > a || a != b;
-r5 = a < b == c > a;
-r6 = a != b && c == a || b < a;
+    int k = 10 * 2;
+    int m = k + 0;
+
+    int r = a + b * c > 10 && a == 2 || 0;
+
+    if (r == 1) {
+        int t = 999;
+    }
+
+    int i = 0;
+    while (i < 3) {
+        i = i + 1;
+    }
+
+    for (int j = 0; j < 2; j = j + 1) {
+        m = m + j;
+    }
+
+    int z = cuadrado(a);
+
+    return z;
+}
+
+int cuadrado(int x) {
+    int y = x * x;
+    return y;
+}

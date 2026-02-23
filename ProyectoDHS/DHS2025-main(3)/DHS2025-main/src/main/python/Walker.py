@@ -47,6 +47,29 @@ class Walker(compiladorVisitor):
     
     def visitBloque(self, ctx):
         return self.visit(ctx.instrucciones())
+    
+    def visitDeclaracion(self, ctx):
+        # Primera variable
+        id_name = ctx.ID().getText()
+
+        if ctx.inic():
+            valor = self.visit(ctx.inic().opal())
+            self.archivo.write(f"{id_name} = {valor}\n")
+
+        # Variables adicionales (si existen)
+        if ctx.listavar():
+            self.visit(ctx.listavar())
+            
+    def visitListavar(self, ctx):
+        if ctx.ID():
+            id_name = ctx.ID().getText()
+
+            if ctx.inic():
+                valor = self.visit(ctx.inic().opal())
+                self.archivo.write(f"{id_name} = {valor}\n")
+
+            if ctx.listavar():
+                self.visit(ctx.listavar())
 
     #Escribe la asignación en el codigoIntermedio.txt
     def visitAsignacion(self, ctx):
