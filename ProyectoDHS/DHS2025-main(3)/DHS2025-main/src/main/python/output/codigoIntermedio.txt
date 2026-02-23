@@ -1,16 +1,37 @@
-main:
-pop t0
 a = 5
 b = 10
-t1 = a + b
-c = t1
-if false jmp L1
-jmp L2
-L1:
-a = 100
-b = 200
-L2:
-x = 4
-t2 = x + 0
-push c
-jmp t0
+c = 5
+t0 = a == c
+t1 = b > a
+t2 = a != b
+t3 = t1 && t2
+t4 = t0 || t3
+r1 = t4
+t5 = a == c
+t6 = b > a
+t7 = t5 || t6
+t8 = a != b
+t9 = t7 && t8
+r2 = t9
+t10 = a == c
+t11 = b > a
+t12 = a != b
+t13 = t11 && t12
+t14 = t10 || t13
+r3 = t14
+t15 = a == c
+t16 = b > a
+t17 = t15 && t16
+t18 = a != b
+t19 = t17 || t18
+r4 = t19
+t20 = a < b
+t21 = c > a
+t22 = t20 == t21
+r5 = t22
+t23 = a != b
+t24 = c == a
+t25 = t23 && t24
+t26 = b < a
+t27 = t25 || t26
+r6 = t27

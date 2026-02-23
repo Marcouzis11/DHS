@@ -1,10 +1,4 @@
-# import compiladorVisitor
-# import compiladorParser
-# class Caminante (compiladorVisitor) :
-    
-#     def visitPrograma(self, ctx:compiladorParser.ProgramaContext):
-#         print ("Programa procesado")
-#         return ctx
+
 import os
 
 from compiladorVisitor import compiladorVisitor
@@ -35,10 +29,12 @@ class Walker(compiladorVisitor):
     def visitTerminal(self, node):
         return node.getText()
 
+    #Devuelve el label con su numero (L1, L2, etc)
     def get_label(self):
         self.l_cont += 1
         return f"L{self.l_cont}"
     
+    #Ingresa y ve los hijos de instrucción o si hay más instrucciones
     def visitInstrucciones(self, ctx):
         if ctx.instruccion():
             self.visit(ctx.instruccion())
@@ -52,18 +48,19 @@ class Walker(compiladorVisitor):
     def visitBloque(self, ctx):
         return self.visit(ctx.instrucciones())
 
-    
+    #Escribe la asignación en el codigoIntermedio.txt
     def visitAsignacion(self, ctx):
         id_name = ctx.ID().getText()
         valor = self.visit(ctx.opal())
         self.archivo.write(f"{id_name} = {valor}\n")
-        
+    
+    #Lo mismo que la de arriba (pero por un problema de punto y coma con el for)
     def visitAsignacionSimple(self, ctx):
         id_name = ctx.ID().getText()
         valor = self.visit(ctx.opal())
         self.archivo.write(f"{id_name} = {valor}\n")
         
-    
+    #Ingresa a las opal y sigue toda la precedencia de operadores
     def visitOpal(self, ctx):
         return self.visit(ctx.expOR())
     
@@ -177,6 +174,7 @@ class Walker(compiladorVisitor):
         if ctx.opal():
             return self.visit(ctx.opal())
         
+    #Visita el if y lo coloca así: if condicion jmp LX
     def visitIif(self, ctx):
         cond = self.visit(ctx.opal())
 
@@ -187,7 +185,7 @@ class Walker(compiladorVisitor):
         self.archivo.write(f"if {cond} jmp {Ltrue}\n")
         self.archivo.write(f"jmp {Lfalse}\n")
 
-        # TRUE
+        # Escribe el label de TRUE y el contenido
         self.archivo.write(f"{Ltrue}:\n")
         self.visit(ctx.instruccion())  # cuerpo del if
 
@@ -195,14 +193,14 @@ class Walker(compiladorVisitor):
         if ctx.ielse() and ctx.ielse().instruccion():
             self.archivo.write(f"jmp {Lend}\n")
 
-        # FALSE
+        # Escribe el label de FALSE y el contenido
         self.archivo.write(f"{Lfalse}:\n")
 
         if ctx.ielse() and ctx.ielse().instruccion():
             self.visit(ctx.ielse().instruccion())
             self.archivo.write(f"{Lend}:\n")
 
-        
+    #Escribe el while con los labels correspondientes (utiliza if para la condición)
     def visitIwhile(self, ctx):
         Linicio = self.get_label()
         Lbody = self.get_label()
@@ -216,13 +214,13 @@ class Walker(compiladorVisitor):
         self.archivo.write(f"jmp {Lfin}\n")
 
         self.archivo.write(f"{Lbody}:\n")
-        self.visit(ctx.instruccion())   # ← NO bloque()
+        self.visit(ctx.instruccion())   
 
         self.archivo.write(f"jmp {Linicio}\n")
         self.archivo.write(f"{Lfin}:\n")
         
+        #Escribe el for con los labels correspondientes (utiliza if para la condición)
     def visitIfor(self, ctx):
-        
         
         if ctx.tipo() is None:
             self.visit(ctx.asignacion())
@@ -239,6 +237,7 @@ class Walker(compiladorVisitor):
 
         self.archivo.write(start + ":\n")
 
+        #IF del for
         cond = self.visit(ctx.opal())
         self.archivo.write(f"if {cond} jmp {body}\n")
         self.archivo.write(f"jmp {end}\n")
@@ -251,6 +250,7 @@ class Walker(compiladorVisitor):
         self.archivo.write(f"jmp {start}\n")
         self.archivo.write(end + ":\n")
         
+    #Prototipado de la función (se guarda el nombre y la cantidad para verificar en la llamada)
     def visitPrototipoFunc(self, ctx):
         nombre = ctx.ID().getText()
 
@@ -269,8 +269,8 @@ class Walker(compiladorVisitor):
         self.tabla_funciones[nombre] = cantidad
         return None
     
+    #Declaración de la función (se escribe el código de la función con su cuerpo)
     def visitDeclaracionFunc(self, ctx):
-        
         
         self.hay_return = False
         nombre = ctx.ID().getText()
@@ -316,6 +316,7 @@ class Walker(compiladorVisitor):
         self.pila_retornos.pop()
 
 
+    #El return se traduce a push del valor a retornar y un jmp al label de retorno de la función (que se guarda en una pila para soportar recursión)
     def visitIreturn(self, ctx):
 
         valor = self.visit(ctx.opal())
@@ -325,7 +326,8 @@ class Walker(compiladorVisitor):
         self.archivo.write(f"push {valor}\n")
         self.archivo.write(f"jmp {tRet}\n")
         self.hay_return = True
-        
+    
+    #Llamada de la función
     def visitLlamadaFunc(self, ctx):
 
         nombre = ctx.ID().getText()
@@ -362,7 +364,7 @@ class Walker(compiladorVisitor):
 
         return temp
 
-    
+    #Función para generar un temporal
     def nuevoTemp(self):
         temp = f"t{self.t_cont}"
         self.t_cont += 1

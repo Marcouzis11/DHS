@@ -32,9 +32,7 @@ class Optimizador:
         if inicio < len(lineas):
             self.bloques.append((inicio, len(lineas) - 1))
 
-    # -----------------------------------------------------
-    # CONSTANT PROPAGATION + FOLDING
-    # -----------------------------------------------------
+    #PROPAGACIÓN DE CONSTANTES Y FOLDING
     def optimizar_bloque(self, lineas, inicio, fin):
         constantes = {}
 
@@ -45,9 +43,7 @@ class Optimizador:
             if not partes:
                 continue
 
-            # -------------------------
-            # ASIGNACIONES
-            # -------------------------
+            #OPTIMIZACIÓN EN ASIGNACIONES
             if len(partes) >= 3 and partes[1] == "=":
                 izquierda = partes[0]
 
@@ -85,9 +81,7 @@ class Optimizador:
                     else:
                         lineas[i] = f"{izquierda} = {op1} {operador} {op2}\n"
 
-            # -------------------------
-            # IF
-            # -------------------------
+            #OPTIMIZACIÓN IF
             elif partes[0] == "if":
                 condicion = partes[1]
 
@@ -95,10 +89,10 @@ class Optimizador:
                     valor = constantes[condicion]
 
                     if valor == 0:
-                        # nunca entra → eliminar
+                        # nunca entra entonces elimina el codigo
                         lineas[i] = ""
                     else:
-                        # siempre entra → convertir en jmp directo
+                        # siempre entra lo convertir en jmp directo
                         lineas[i] = f"jmp {partes[3]}\n"
 
                 elif condicion == "false":
@@ -107,9 +101,7 @@ class Optimizador:
                 elif condicion == "true":
                     lineas[i] = f"jmp {partes[3]}\n"
 
-    # -----------------------------------------------------
-    # DEAD CODE ELIMINATION REAL (BACKWARD)
-    # -----------------------------------------------------
+    #ELIMINAR CODIGO MUERTO (Se hace de atras para adelante)
     def eliminar_codigo_muerto(self, lineas, inicio, fin):
 
         vivas = set()
@@ -201,15 +193,11 @@ class Optimizador:
 
         return nuevas_lineas
 
-    # -----------------------------------------------------
-    # LIMPIAR LÍNEAS VACÍAS
-    # -----------------------------------------------------
+    # LIMPIA LINEAS QUE ESTÁN VACÍAS
     def limpiar_codigo(self, lineas):
         return [l for l in lineas if l.strip() != ""]
 
-    # -----------------------------------------------------
-    # OPTIMIZACIÓN COMPLETA
-    # -----------------------------------------------------
+    #TODA LA OPTIMIZACIÓN JUNTA EN UNA FUNCION (Se usa en el App.py)
     def optimizar(self):
 
         if not os.path.exists(self.archivo_entrada):

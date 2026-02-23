@@ -1,21 +1,10 @@
-int main() {
-    int a;
-    int b;
-    int c;
+a = 5;
+b = 10;
+c = 5;
 
-    a = 5;
-    b = 10;
-    c = a + b;
-
-    if (false) {
-        a = 100;
-        b = 200;
-    }
-
-    int x = 3;
-    x = 4;
-
-    int y = x + 0;
-
-    return c;
-}
+r1 = a == c || b > a && a != b;
+r2 = (a == c || b > a) && a != b;
+r3 = (a == c) || b > a && a != b;
+r4 = a == c && b > a || a != b;
+r5 = a < b == c > a;
+r6 = a != b && c == a || b < a;
